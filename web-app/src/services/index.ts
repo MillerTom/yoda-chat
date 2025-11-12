@@ -132,6 +132,7 @@ class PlatformServiceHub implements ServiceHub {
           pathModule,
           coreModule,
           deepLinkModule,
+          projectsModule,
         ] = await Promise.all([
           import('./theme/tauri'),
           import('./window/tauri'),
@@ -146,6 +147,7 @@ class PlatformServiceHub implements ServiceHub {
           import('./path/tauri'),
           import('./core/tauri'),
           import('./deeplink/tauri'),
+          import('./projects/postgresql'),
         ])
 
         this.themeService = new themeModule.TauriThemeService()
@@ -161,6 +163,10 @@ class PlatformServiceHub implements ServiceHub {
         this.pathService = new pathModule.TauriPathService()
         this.coreService = new coreModule.TauriCoreService()
         this.deepLinkService = new deepLinkModule.TauriDeepLinkService()
+        this.projectsService = new projectsModule.PostgreSQLProjectsService()
+        
+        // Initialize PostgreSQL database connection
+        await this.projectsService.initialize?.()
       } else if (isPlatformIOS() || isPlatformAndroid()) {
         const [
           themeModule,

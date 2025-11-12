@@ -11,6 +11,11 @@ export interface ThreadFolder {
 
 export interface ProjectsService {
   /**
+   * Initialize the service (optional, for services that need setup)
+   */
+  initialize?(): Promise<void>
+
+  /**
    * Get all projects/folders
    */
   getProjects(): Promise<ThreadFolder[]>
