@@ -20,6 +20,12 @@
 
 Jan is bringing the best of open-source AI in an easy-to-use product. Download and run LLMs with **full control** and **privacy**.
 
+## 🚀 Quick Start & Collaboration
+
+- **[Quick Start Guide](./QUICKSTART.md)** - Get up and running in 5 minutes
+- **[Collaboration Guide](./COLLABORATION_GUIDE.md)** - Complete guide for contributors and collaborators
+- **[Web App Deployment](./docs/WEB_DEPLOYMENT.md)** - Deploy Jan as a web application
+
 ## Installation
 
 The easiest way to get started is by downloading one of the following versions for your respective operating system:
