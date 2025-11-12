@@ -114,7 +114,16 @@ pub fn run() {
             // Download
             core::downloads::commands::download_files,
             core::downloads::commands::cancel_download_task,
+            // Project commands
+            core::project::commands::init_project_database,
+            core::project::commands::check_project_database_health,
+            core::project::commands::create_project,
+            core::project::commands::get_all_projects,
+            core::project::commands::get_project_by_id,
+            core::project::commands::update_project,
+            core::project::commands::delete_project,
         ])
+        .manage(core::project::commands::ProjectDbState::new())
         .manage(AppState {
             app_token: Some(generate_app_token()),
             mcp_servers: Arc::new(Mutex::new(HashMap::new())),
