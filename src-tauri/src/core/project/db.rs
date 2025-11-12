@@ -51,11 +51,38 @@ impl ProjectDatabase {
 
     /// Initialize the database schema
     pub async fn init_schema(&self) -> Result<(), ProjectDbError> {
-        let schema = include_str!("schema.sql");
-        
-        sqlx::query(schema)
-            .execute(&self.pool)
-            .await?;
+        // Execute schema statements individually since sqlx doesn't support multiple statements in one query
+        let statements = vec![
+            "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"",
+            r#"CREATE TABLE IF NOT EXISTS projects (
+                id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                name VARCHAR(255) NOT NULL,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                deleted_at TIMESTAMPTZ DEFAULT NULL,
+                CONSTRAINT projects_name_not_empty CHECK (LENGTH(TRIM(name)) > 0)
+            )"#,
+            "CREATE INDEX IF NOT EXISTS idx_projects_updated_at ON projects(updated_at DESC) WHERE deleted_at IS NULL",
+            "CREATE INDEX IF NOT EXISTS idx_projects_name ON projects(name) WHERE deleted_at IS NULL",
+            r#"CREATE OR REPLACE FUNCTION update_updated_at_column()
+                RETURNS TRIGGER AS $$
+                BEGIN
+                    NEW.updated_at = NOW();
+                    RETURN NEW;
+                END;
+                $$ language 'plpgsql'"#,
+            "DROP TRIGGER IF EXISTS update_projects_updated_at ON projects",
+            r#"CREATE TRIGGER update_projects_updated_at 
+                BEFORE UPDATE ON projects
+                FOR EACH ROW
+                EXECUTE FUNCTION update_updated_at_column()"#,
+        ];
+
+        for statement in statements {
+            sqlx::query(statement)
+                .execute(&self.pool)
+                .await?;
+        }
 
         Ok(())
     }
